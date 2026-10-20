@@ -1,0 +1,34 @@
+name: Compilar PS2 e gerar ISO
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: ps2dev/ps2dev:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compilar
+        run: make
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ultima_aula_elf
+          path: ultima_aula.elf
+  iso:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ultima_aula_elf
+      - name: Montar ISO
+        run: |
+          sudo apt-get update && sudo apt-get install -y genisoimage
+          mkdir iso
+          cp ultima_aula.elf iso/SLUS_000.01
+          printf 'BOOT2 = cdrom0:\\SLUS_000.01;1\r\nVER = 1.00\r\nVMODE = NTSC\r\n' > iso/SYSTEM.CNF
+          genisoimage -o "SLUS_000.01.A Ultima Aula.iso" -V ULTIMA_AULA -l -iso-level 1 iso
+      - uses: actions/upload-artifact@v4
+        with:
+          name: A-Ultima-Aula-ISO
+          path: "SLUS_000.01.A Ultima Aula.iso"
