@@ -5,8 +5,9 @@ EE_CFLAGS += -std=gnu99 -O2
 
 all: $(EE_BIN)
 
-clean:
-	rm -f $(EE_BIN) $(EE_OBJS)
-
 include $(PS2SDK)/samples/Makefile.pref
 include $(PS2SDK)/samples/Makefile.eeglobal
+
+GSKIT ?= $(PS2DEV)/gsKit
+EE_INCS += -I$(GSKIT)/include
+EE_LDFLAGS += -L$(GSKIT)/lib
